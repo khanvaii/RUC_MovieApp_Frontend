@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import '../CSS/Home.css'; 
 import { Link } from 'react-router-dom';
-import '../CSS/Home.css'; // Import custom CSS for styling
 
-const HomePage = () => {
+const RecentReleased = () => {
     const [movies, setMovies] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -15,9 +15,9 @@ const HomePage = () => {
         const fetchMoviesWithPosters = async () => {
             try {
                 setLoading(true);
-
-                // Fetch movies from your backend
-                const response = await fetch(`https://localhost:7019/api/movie/allmovies?page=${page}&pagesize=12`);
+                const currentyear = new Date().getFullYear();
+               // const response = await fetch(`https://localhost:7019/api/movie/allmovies?page=${page}&pagesize=12`);
+                const response = await fetch(`https://localhost:7019/api/movie/releaseyear/${currentyear}?page=${page}&pagesize=12`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch movies');
                 }
@@ -25,9 +25,9 @@ const HomePage = () => {
                 const data = await response.json();
                 const moviesWithPosters = await Promise.all(
                     data.items.map(async (movie) => {
-                        // Fetch poster data from TMDB
+                      
                         const tmdbResponse = await fetch(
-                            `https://api.themoviedb.org/3/find/${movie.tconst}?external_source=imdb_id&api_key=${TMDB_API_KEY}`
+                            `https://api.themoviedb.org/3/find/${movie.tconst.trim()}?external_source=imdb_id&api_key=${TMDB_API_KEY}`
                         );
                         const tmdbData = await tmdbResponse.json();
                              
@@ -70,11 +70,11 @@ const HomePage = () => {
 
     return (
         <div className="home-page-container">
-            <h3>All Movies</h3>
+            <h3>Recent Released</h3>
             <div className="movie-grid">
                 {movies.map((movie) => (
                     <div key={movie.tconst} className="movie-item">
-                        <Link to={`/movie/${movie.tconst}`} className="movie-link">
+                         <Link to={`/movie/${movie.tconst}`} className="movie-link">
                         {movie.posterPath ? (
                             <img
                                 src={`https://image.tmdb.org/t/p/w200${movie.posterPath}`}
@@ -87,7 +87,6 @@ const HomePage = () => {
                         <div className="movie-details">
                             <strong>{movie.primarytitle}</strong> ({movie.startyear})
                             <p>{movie.genres}</p>
-                           
                         </div>
                         </Link>
                     </div>
@@ -108,6 +107,6 @@ const HomePage = () => {
             </div>
         </div>
     );
-};
 
-export default HomePage;
+};
+export default RecentReleased;
